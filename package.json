@@ -1,0 +1,25 @@
+{
+  "name": "react-quarantine",
+  "version": "1.0.0",
+  "description": "React version of TTDWTWGC using GraphQL api",
+  "main": "server.js",
+  "scripts": {
+    "install-all": "npm install && cd client && npm install",
+    "server": "nodemon server.js",
+    "client": "npm run start --prefix client",
+    "dev": "concurrently \"npm run server\" \"npm run client\""
+  },
+  "keywords": [],
+  "author": "Graham Vasquez",
+  "license": "MIT",
+  "dependencies": {
+    "apollo-server": "^2.11.0",
+    "concurrently": "^5.1.0",
+    "dotenv": "^8.2.0",
+    "mongodb": "^3.5.5",
+    "mongoose": "^5.9.6"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.2"
+  }
+}

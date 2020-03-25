@@ -1,0 +1,15 @@
+.btn {
+  &-block-xs {
+    @media (max-width: $sm) {
+      display: block;
+      width: 100%;
+    }
+  }
+
+  &-warning {
+    &:active {
+      background-color: darken($warning, 20%) !important;
+      border-color: darken($warning, 20%) !important;
+    }
+  }
+}

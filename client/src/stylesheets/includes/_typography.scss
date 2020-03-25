@@ -1,0 +1,30 @@
+html {
+  font-size: $font-size;
+}
+
+body {
+  color: $body-color;
+  font-family: $font-sans;
+}
+
+h1 {
+  font-family: $font-serif;
+  font-weight: 900;
+  line-height: 1.2;
+  text-align: left;
+  text-transform: uppercase;
+
+  @media (max-width: $sm) {
+    font-size: 1.4rem;
+  }
+}
+
+.text {
+  &--slate {
+    color: $slate;
+  }
+
+  &--mustard {
+    color: $mustard;
+  }
+}
