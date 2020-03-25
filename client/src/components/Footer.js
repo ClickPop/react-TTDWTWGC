@@ -2,7 +2,7 @@ import React from 'react';
 
 export const Footer = () => {
   return (
-    <div class='footer'>
+    <div className='footer'>
       Made by{' '}
       <a
         id='clickpop'
@@ -12,7 +12,7 @@ export const Footer = () => {
       >
         ClickPop
       </a>
-      <span class='d-none d-sm-inline'>|</span>
+      <span className='d-none d-sm-inline'>|</span>
       <a
         href='https://www.producthunt.com/posts/things-to-do-when-the-world-gets-canceld?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-things-to-do-when-the-world-gets-canceld'
         target='_blank'
@@ -26,7 +26,7 @@ export const Footer = () => {
           height='54px'
         />
       </a>
-      <span class='d-none d-sm-inline'>|</span>
+      <span className='d-none d-sm-inline'>|</span>
       <a
         href='https://github.com/clickpop/quarantine'
         target='_blank'

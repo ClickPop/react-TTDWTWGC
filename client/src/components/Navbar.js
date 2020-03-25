@@ -1,4 +1,6 @@
-import React from 'react';
+import React, {useContext} from 'react';
+import {OurStoryContext} from '../context/OurStoryContext';
+import {Link} from 'react-router-dom';
 
 export const Navbar = () => {
   return (
@@ -7,26 +9,27 @@ export const Navbar = () => {
       style={{ width: '100%' }}
     >
       <div>
-        <a
+        <Link
           id='miniLogo'
-          href='/'
+          to='/'
           className='logo logo--mini'
           style={{ display: 'none' }}
         >
           TTDWTWGC
-        </a>
+        </Link>
       </div>
 
       <div>
-        <button
+        <Link
           type='button'
           className='btn btn-warning btn-sm font-weight-bold'
           id='our-story'
-          data-toggle='modal'
-          data-target='#ourStory'
+          // data-toggle='modal'
+          // data-target='#ourStory'
+          to='/ourstory'
         >
           our story
-        </button>
+        </Link>
 
         <a
           href='https://airtable.com/shrrksKvgfYKFK33V'

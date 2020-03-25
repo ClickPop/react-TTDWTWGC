@@ -2,6 +2,7 @@ require('dotenv').config();
 const Activity = require('../models/Activity');
 const Contributor = require('../models/Contributor');
 const mongoDB = require('mongodb');
+const {createWriteStream} = require('fs');
 const db = process.env.MONGO_URI;
 
 const resolvers = {
@@ -31,7 +32,10 @@ const resolvers = {
     },
     async contributor(parent, args, context, info) {
       return await Contributor.findById(args.id);
-    }
+    },
+    // async uploads() {
+    //   return
+    // }
   },
   Mutation: {
     async createActivity(parent, { activity }, context, info) {
@@ -67,16 +71,17 @@ const resolvers = {
       } = await contributor;
 
       if (file !== undefined) {
-        const { stream, filename, mimetype, encoding } = file;
+        // const { stream, filename, mimetype, encoding } = file;
 
-        var bucket = new mongoDB.GridFSBucket(db);
-        var uploadStream = bucket.openUploadStream(filename);
-        await new Promise((resolve, reject) => {
-          stream
-            .pipe(uploadStream)
-            .on('error', reject)
-            .on('finish', resolve);
-        });
+        // var bucket = new mongoDB.GridFSBucket(db);
+        // var uploadStream = bucket.openUploadStream(filename);
+        // await new Promise((resolve, reject) => {
+        //   stream
+        //     .pipe(uploadStream)
+        //     .on('error', reject)
+        //     .on('finish', resolve);
+        // });
+
       }
 
       const headshot = uploadStream !== undefined ? uploadStream.id : undefined;
@@ -93,6 +98,12 @@ const resolvers = {
       });
 
       return await newContributor.save();
+    },
+    async uploadFile (parent, { file }, context, info) {
+      const { stream, filename, mimetype, encoding } = await file;
+      console.log(filename, mimetype, encoding);
+      console.log(stream);
+      return { filename, mimetype, encoding };
     }
   }
 };

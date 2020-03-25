@@ -1,50 +1,52 @@
-import React from 'react';
+import React, {useContext} from 'react';
+import {OurStoryContext} from '../context/OurStoryContext';
 
 export const OurStory = () => {
   return (
     <div
-      class='modal fade'
+      className='modal display-block'
       id='ourStory'
-      tabindex='-1'
+      tabIndex='1'
       role='dialog'
       aria-labelledby='ourStory'
-      aria-hidden='true'
+      // aria-hidden='true'
+      
     >
-      <div class='modal-dialog' role='document'>
-        <div class='modal-content'>
-          <div class='modal-header'>
-            <h5 class='modal-title' id='exampleModalLabel'>
+      <div className='modal-dialog' role='document'>
+        <div className='modal-content'>
+          <div className='modal-header'>
+            <h5 className='modal-title' id='exampleModalLabel'>
               Our Story
             </h5>
             <button
               type='button'
-              class='close'
+              className='close'
               data-dismiss='modal'
               aria-label='Close'
             >
               <span aria-hidden='true'>&times;</span>
             </button>
           </div>
-          <div class='modal-body p-0'>
-            <div class='embed-responsive embed-responsive-16by9'>
+          <div className='modal-body p-0'>
+            <div className='embed-responsive embed-responsive-16by9'>
               <iframe
                 title='OurStory'
-                class='embed-responsive-item'
+                className='embed-responsive-item'
                 width='560'
                 height='315'
                 src='https://www.youtube-nocookie.com/embed/ln1DGHJnJB0?html5=1'
-                frameborder='0'
+                frameBorder='0'
                 allow='accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture'
-                allowfullscreen
+                allowFullScreen
               ></iframe>
             </div>
           </div>
-          <div class='modal-footer'>
+          <div className='modal-footer'>
             <a
               href='https://airtable.com/shrrksKvgfYKFK33V'
               target='_blank'
               rel='noopener noreferrer'
-              class='btn btn-secondary btn-block'
+              className='btn btn-secondary btn-block'
             >
               add an idea
             </a>

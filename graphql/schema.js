@@ -79,11 +79,13 @@ const schema = gql`
     ): Activity
     contributors: [Contributor]
     contributor(id: ID!): Contributor
+    uploads: [File]
   }
 
   type Mutation {
     createActivity(activity: ActivityInput): Activity
     createContributor(contributor: ContributorInput): Contributor
+    uploadFile(file: Upload!): File!
   }
 `;
 
