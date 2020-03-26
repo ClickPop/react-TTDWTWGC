@@ -16,16 +16,17 @@ const resolvers = {
         return await Activity.findById(id);
       }
       const query = { approved: true };
-      if (activity_type !== undefined) {
+      if (activity_type !== undefined && activity_type.length > 0) {
         query.activity_type = activity_type;
       }
-      if (audience !== undefined) {
+      if (audience !== undefined && audience.length > 0) {
         query.audience = audience;
       }
+      console.log(query);
       const count = await Activity.find(query)
         .countDocuments()
         .exec();
-      return Activity.findOne(query).skip(Math.floor(Math.random() * count));
+      return await Activity.findOne(query).skip(Math.floor(Math.random() * count)).populate('contributors');
     },
     async contributors() {
       return await Contributor.find();

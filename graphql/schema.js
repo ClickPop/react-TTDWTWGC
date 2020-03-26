@@ -6,8 +6,8 @@ const schema = gql`
     title: String!
     description: String
     url: String
-    activity_type: [ActivityType]!
-    audience: [ActivityAudience]!
+    activity_type: [String]!
+    audience: [String]!
     contributors: [Contributor]
     approved: Boolean!
     # created_date: String
@@ -32,31 +32,31 @@ const schema = gql`
     encoding: String!
   }
 
-  enum ActivityAudience {
-    BY_MYSELF
-    WITH_MY_KIDS
-    WITH_MY_PARTNER
-    WITH_MY_FRIENDS
-  }
+  # enum ActivityAudience {
+  #   BY_MYSELF
+  #   WITH_MY_KIDS
+  #   WITH_MY_PARTNER
+  #   WITH_MY_FRIENDS
+  # }
 
-  enum ActivityType {
-    PLAY_A_GAME
-    LEARN_SOMETHING_NEW
-    LEARN_A_PROFESSIONAL_SKILL
-    SOMETHING_UNUSUAL
-    MAKE_A_CRAFT
-    GO_OUTSIDE
-    DO_SOMETHING_SIMPLE
-    MAKE_ART
-    SPRUCE_THINGS_UP
-  }
+  # enum ActivityType {
+  #   PLAY_A_GAME
+  #   LEARN_SOMETHING_NEW
+  #   LEARN_A_PROFESSIONAL_SKILL
+  #   SOMETHING_UNUSUAL
+  #   MAKE_A_CRAFT
+  #   GO_OUTSIDE
+  #   DO_SOMETHING_SIMPLE
+  #   MAKE_ART
+  #   SPRUCE_THINGS_UP
+  # }
 
   input ActivityInput {
     title: String!
     description: String
     url: String
-    activity_type: [ActivityType]!
-    audience: [ActivityAudience]!
+    activity_type: [String]!
+    audience: [String]!
     contributors: [String]
   }
 
@@ -74,8 +74,8 @@ const schema = gql`
     activities: [Activity]
     activity(
       id: ID
-      activity_type: ActivityType
-      audience: ActivityAudience
+      activity_type: String
+      audience: String
     ): Activity
     contributors: [Contributor]
     contributor(id: ID!): Contributor

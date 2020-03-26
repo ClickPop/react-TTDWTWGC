@@ -1,8 +1,11 @@
 import React, {useContext} from 'react';
-import {OurStoryContext} from '../context/OurStoryContext';
+import {OurStoryContext} from '../../context/StoryContext';
 import {Link} from 'react-router-dom';
 
 export const Navbar = () => {
+  
+  const {show, setShow} = useContext(OurStoryContext);
+  
   return (
     <nav
       className='navbar navbar-expand justify-content-between align-items-center px-0 px-sm-3'
@@ -20,16 +23,16 @@ export const Navbar = () => {
       </div>
 
       <div>
-        <Link
+        <button
           type='button'
           className='btn btn-warning btn-sm font-weight-bold'
           id='our-story'
           // data-toggle='modal'
           // data-target='#ourStory'
-          to='/ourstory'
+          onClick={e => setShow(!show)}
         >
           our story
-        </Link>
+        </button>
 
         <a
           href='https://airtable.com/shrrksKvgfYKFK33V'
