@@ -10,20 +10,20 @@ const ContributorSchema = new Schema({
   twitter: String,
   other: String,
   bio: String,
-  headshot: Object,
+  headshot: String,
   activities: [
     {
-      activity: {
-        type: Schema.Types.ObjectId,
-        ref: 'activity'
-      }
+      type: Schema.Types.ObjectId,
+      ref: 'activity'
     }
   ],
   email: String,
   approved: {
     type: Boolean,
     required: true
-  }
+  },
+  airtable_activities: [String],
+  airtable_id: String
 });
 
 module.exports = mongoose.model('contributor', ContributorSchema);

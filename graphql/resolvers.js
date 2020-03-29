@@ -8,35 +8,50 @@ const db = process.env.MONGO_URI;
 const resolvers = {
   Query: {
     async activities() {
-      return await Activity.find();
+      const activities = await Activity.find().populate('contributors');
+      return activities;
     },
     async activity(parent, args, context, info) {
-      const { id, activity_type, audience } = args;
+      let { id, activity_type, audience, pastResults } = args;
       if (id !== undefined) {
         return await Activity.findById(id);
       }
-      const query = { approved: true };
+      let query = { approved: true };
+      if (pastResults !== undefined) {
+        if (pastResults.length === 1) {
+          query._id = {$ne: pastResults[0]}
+        } else if (pastResults.length > 1) {
+          if (pastResults.length >= 3) {
+            pastResults = pastResults.slice(pastResults.length - 3);
+          }
+          query.$and = []
+          pastResults.forEach(result => {
+            query.$and.push({
+              _id: {
+                $ne: result
+              } 
+            });
+          });
+        }
+      }
       if (activity_type !== undefined && activity_type.length > 0) {
         query.activity_type = activity_type;
       }
       if (audience !== undefined && audience.length > 0) {
         query.audience = audience;
       }
-      console.log(query);
       const count = await Activity.find(query)
         .countDocuments()
         .exec();
-      return await Activity.findOne(query).skip(Math.floor(Math.random() * count)).populate('contributors');
+      let activity = await Activity.findOne(query).skip(Math.floor(Math.random() * count)).populate('contributors');
+      return activity;
     },
     async contributors() {
-      return await Contributor.find();
+      return await Contributor.find().populate('activities');
     },
     async contributor(parent, args, context, info) {
-      return await Contributor.findById(args.id);
-    },
-    // async uploads() {
-    //   return
-    // }
+      return await (await Contributor.findById(args.id)).populate('activities');
+    }
   },
   Mutation: {
     async createActivity(parent, { activity }, context, info) {
@@ -67,25 +82,9 @@ const resolvers = {
         twitter,
         other,
         bio,
-        file,
+        headshot,
         email
-      } = await contributor;
-
-      if (file !== undefined) {
-        // const { stream, filename, mimetype, encoding } = file;
-
-        // var bucket = new mongoDB.GridFSBucket(db);
-        // var uploadStream = bucket.openUploadStream(filename);
-        // await new Promise((resolve, reject) => {
-        //   stream
-        //     .pipe(uploadStream)
-        //     .on('error', reject)
-        //     .on('finish', resolve);
-        // });
-
-      }
-
-      const headshot = uploadStream !== undefined ? uploadStream.id : undefined;
+      } = contributor;
 
       const newContributor = new Contributor({
         name,
@@ -99,12 +98,6 @@ const resolvers = {
       });
 
       return await newContributor.save();
-    },
-    async uploadFile (parent, { file }, context, info) {
-      const { stream, filename, mimetype, encoding } = await file;
-      console.log(filename, mimetype, encoding);
-      console.log(stream);
-      return { filename, mimetype, encoding };
     }
   }
 };

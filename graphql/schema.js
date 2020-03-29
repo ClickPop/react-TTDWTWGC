@@ -6,11 +6,10 @@ const schema = gql`
     title: String!
     description: String
     url: String
-    activity_type: [String]!
-    audience: [String]!
+    activity_type: [Activity_type]!
+    audience: [Audience]!
     contributors: [Contributor]
     approved: Boolean!
-    # created_date: String
   }
 
   type Contributor {
@@ -20,36 +19,21 @@ const schema = gql`
     twitter: String
     other: String
     bio: String
-    headshot: File
+    headshot: String
     activities: [Activity]
     email: String
     approved: Boolean!
   }
 
-  type File {
-    filename: String!
-    mimetype: String!
-    encoding: String!
+  type Activity_type {
+    id: ID!
+    label: String!
   }
 
-  # enum ActivityAudience {
-  #   BY_MYSELF
-  #   WITH_MY_KIDS
-  #   WITH_MY_PARTNER
-  #   WITH_MY_FRIENDS
-  # }
-
-  # enum ActivityType {
-  #   PLAY_A_GAME
-  #   LEARN_SOMETHING_NEW
-  #   LEARN_A_PROFESSIONAL_SKILL
-  #   SOMETHING_UNUSUAL
-  #   MAKE_A_CRAFT
-  #   GO_OUTSIDE
-  #   DO_SOMETHING_SIMPLE
-  #   MAKE_ART
-  #   SPRUCE_THINGS_UP
-  # }
+  type Audience {
+    id: ID!
+    label: String!
+  }
 
   input ActivityInput {
     title: String!
@@ -67,25 +51,26 @@ const schema = gql`
     other: String
     bio: String
     email: String
-    headshot: Upload
+    headshot: String
   }
 
   type Query {
     activities: [Activity]
     activity(
       id: ID
-      activity_type: String
-      audience: String
+      activity_type: ID
+      audience: ID
+      pastResults: [ID]
     ): Activity
     contributors: [Contributor]
     contributor(id: ID!): Contributor
-    uploads: [File]
+    activity_types: [Activity_type]
+    audience: [Audience]
   }
 
   type Mutation {
     createActivity(activity: ActivityInput): Activity
     createContributor(contributor: ContributorInput): Contributor
-    uploadFile(file: Upload!): File!
   }
 `;
 

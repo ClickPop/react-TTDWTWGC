@@ -1,10 +1,10 @@
 import React, {useContext} from 'react';
-import {OurStoryContext} from '../../context/StoryContext';
+import {GlobalContext, InitialState} from '../../context/GlobalState';
 import {Link} from 'react-router-dom';
 
 export const Navbar = () => {
   
-  const {show, setShow} = useContext(OurStoryContext);
+  const {show, setShow, searchData, setSearchData} = useContext(GlobalContext);
   
   return (
     <nav
@@ -16,7 +16,8 @@ export const Navbar = () => {
           id='miniLogo'
           to='/'
           className='logo logo--mini'
-          style={{ display: 'none' }}
+          style={ !searchData.result ? { display: 'none' } : {}}
+          onClick={() => setSearchData(InitialState)}
         >
           TTDWTWGC
         </Link>

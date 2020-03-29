@@ -8,14 +8,18 @@ const ActivitySchema = new Schema({
   },
   description: String,
   url: String,
-  activity_type: {
-    type: [String],
+  activity_type: [
+    {
+    type: String,
     required: true
-  },
-  audience: {
-    type: [String],
+    }
+  ],
+  audience: [
+    {
+    type: String,
     required: true
-  },
+    }
+  ],
   contributors: [
     {
       type: Schema.Types.ObjectId,
@@ -25,7 +29,9 @@ const ActivitySchema = new Schema({
   approved: {
     type: Boolean,
     required: true
-  }
+  },
+  airtable_contributors: [String],
+  airtable_id: String
 });
 
 module.exports = mongoose.model('activity', ActivitySchema);
