@@ -22,7 +22,13 @@ const schema = gql`
     headshot: String
     activities: [Activity]
     email: String
-    approved: Boolean!
+    approved: Boolean! 
+  }
+
+  type User {
+    id: ID!
+    email: String!
+    contributor: Contributor
   }
 
   type Activity_type {
@@ -35,12 +41,19 @@ const schema = gql`
     label: String!
   }
 
+  type File {
+    id: ID!
+    filename: String!
+    mimetype: String!
+    encoding: String!
+  }
+
   input ActivityInput {
     title: String!
     description: String
     url: String
-    activity_type: [String]!
-    audience: [String]!
+    activity_type: [String!]!
+    audience: [String!]!
     contributors: [String]
   }
 
@@ -50,8 +63,8 @@ const schema = gql`
     twitter: String
     other: String
     bio: String
-    email: String
-    headshot: String
+    email: String!
+    headshot: Upload
   }
 
   type Query {
@@ -64,11 +77,12 @@ const schema = gql`
     ): Activity
     contributors: [Contributor]
     contributor(id: ID!): Contributor
-    activity_types: [Activity_type]
-    audience: [Audience]
+    user: User
   }
 
   type Mutation {
+    register(email: String!, password: String!): User!
+    login(email: String!, password: String!): String!
     createActivity(activity: ActivityInput): Activity
     createContributor(contributor: ContributorInput): Contributor
   }

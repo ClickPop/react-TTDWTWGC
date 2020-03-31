@@ -1,5 +1,5 @@
 import React, {useContext} from 'react';
-import {GlobalContext, InitialState} from '../../context/GlobalState';
+import {GlobalContext, InitialSearch} from '../../context/GlobalState';
 import {Link} from 'react-router-dom';
 
 export const Navbar = () => {
@@ -17,7 +17,7 @@ export const Navbar = () => {
           to='/'
           className='logo logo--mini'
           style={ !searchData.result ? { display: 'none' } : {}}
-          onClick={() => setSearchData(InitialState)}
+          onClick={() => setSearchData(InitialSearch)}
         >
           TTDWTWGC
         </Link>

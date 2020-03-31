@@ -2,7 +2,7 @@ import React, {useState, createContext} from 'react';
 
 export const GlobalContext = createContext();
 
-export const InitialState = {
+export const InitialSearch = {
   search: false,
   activity_type: '',
   audience: '',
@@ -14,12 +14,24 @@ export const InitialState = {
   pastResults: []
 };
 
+export const InitialContributor = {
+  name: '',
+  bio: '',
+  website: '',
+  twitter: '',
+  other: '',
+  headshot: null,
+  email: ''
+}
+
 export const GlobalState = (props) => {
   const [show, setShow] = useState(false);
-  const [searchData, setSearchData] = useState(InitialState);
+  const [searchData, setSearchData] = useState(InitialSearch);
+  const [contributorData, setContributorData] = useState(InitialContributor);
+
 
   return (
-    <GlobalContext.Provider value={{show, setShow, searchData, setSearchData}}>
+    <GlobalContext.Provider value={{show, setShow, searchData, setSearchData, contributorData, setContributorData}}>
       {props.children}
     </GlobalContext.Provider>
   );

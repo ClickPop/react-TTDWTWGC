@@ -9,11 +9,12 @@ import {StoryContainer} from './components/Story/StoryContainer';
 import { GlobalState } from './context/GlobalState';
 import { ApolloProvider, ApolloClient, InMemoryCache } from '@apollo/client';
 import { createUploadLink } from 'apollo-upload-client';
+import {Upload} from './components/Upload';
 
 
-const link = createUploadLink({ uri: 'http://localhost:5000' });
+const link = createUploadLink({ uri: 'http://localhost:5000/graphql' });
 
-const client = new ApolloClient({
+export const client = new ApolloClient({
   link,
   cache: new InMemoryCache()
 });
@@ -33,6 +34,7 @@ function App() {
               <Switch>
                 <Route exact path='/' component={Container} />
                 <Route exact path='/newcontributor' component={AddContributor} />
+                <Route exact path='/upload' component={Upload} />
               </Switch>
               <Footer />
           </Router>
