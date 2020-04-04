@@ -21,13 +21,13 @@ const schema = gql`
     bio: String
     headshot: String
     activities: [Activity]
-    email: String
     approved: Boolean! 
   }
 
   type User {
     id: ID!
     email: String!
+    roles: [String!]!
     contributor: Contributor
   }
 
@@ -48,6 +48,10 @@ const schema = gql`
     encoding: String!
   }
 
+  type AuthResponse {
+    user: User
+  }
+
   input ActivityInput {
     title: String!
     description: String
@@ -63,7 +67,6 @@ const schema = gql`
     twitter: String
     other: String
     bio: String
-    email: String!
     headshot: Upload
   }
 
@@ -77,12 +80,13 @@ const schema = gql`
     ): Activity
     contributors: [Contributor]
     contributor(id: ID!): Contributor
-    user: User
+    currentUser: User
   }
 
   type Mutation {
-    register(email: String!, password: String!): User!
-    login(email: String!, password: String!): String!
+    register(email: String!, password: String!): AuthResponse!
+    login(email: String!, password: String!): AuthResponse
+    logout: Boolean
     createActivity(activity: ActivityInput): Activity
     createContributor(contributor: ContributorInput): Contributor
   }

@@ -1,7 +1,8 @@
-import React, { useContext } from 'react'
+import React, { useState, useContext } from 'react'
 import gql from 'graphql-tag';
 import {useMutation} from '@apollo/client';
-import { InitialContributor, GlobalContext } from '../../context/GlobalState';
+import {useHistory} from 'react-router-dom';
+import { GlobalContext } from '../../context/GlobalState';
 
 const addContributor = gql`
     mutation(
@@ -10,7 +11,6 @@ const addContributor = gql`
       $twitter: String,
       $other: String,
       $bio: String,
-      $email: String!
       $headshot: Upload) {
         createContributor(contributor: {
           name: $name, 
@@ -18,7 +18,6 @@ const addContributor = gql`
           twitter: $twitter, 
           other: $other,
           bio: $bio,
-          email: $email
           headshot: $headshot
         }) {
             id
@@ -27,57 +26,73 @@ const addContributor = gql`
             twitter
             other
             bio
-            email
         }
     }
 `;
 
+const InitialContributor = {
+  name: '',
+  bio: '',
+  website: '',
+  twitter: '',
+  other: '',
+  headshot: null,
+}
+
 export const AddContributor = () => {
-  const {contributorData, setContributorData} = useContext(GlobalContext);
-  const [createContributor, {data, loading, error}] = useMutation(addContributor);
+  let history = useHistory();
+  const [contributorData, setContributorData] = useState(InitialContributor);
+  const [createContributor] = useMutation(addContributor, {
+    onCompleted: (data) => {
+      setCurrentContributor({
+        name: data.name,
+        bio: data.bio,
+        website: data.website,
+        twitter: data.twitter,
+        other: data.other,
+        headshot: data.headshot,
+      });
+    }
+  });
+  const {authenticated, currentContributor, setCurrentContributor} = useContext(GlobalContext);
 
   const onChangeText = (e) => {
     const {id, value} = e.target;
     setContributorData({...contributorData, [id]: value});
-    console.log(contributorData);
   }
 
   const onChangeFile = (e) => {
     const [file] = e.target.files;
     setContributorData({...contributorData, headshot: file});
-    console.log(contributorData);
   }
 
   const onSubmit = (e) => {
     e.preventDefault();
-    console.log(contributorData);
     createContributor({
       variables: contributorData
     });
     setContributorData(InitialContributor);
+    history.push('/');
   }
-  
+
   return (
-    <div>
+    <div className='d-flex flex-column' style={{width: '40vw', maxHeight: '90vh'}}>
+      <h1 className='mb-2'>New Contributor</h1>
       <form onSubmit={e => onSubmit(e)}>
         <div className="form-group">
           <label htmlFor="name">Name</label>
           <input type="text" className="form-control" id='name' placeholder='Your name' onChange={e => onChangeText(e)} required/>
         </div>
         <div className="form-group">
-          <label htmlFor="email">Email</label>
-          <input type="text" className="form-control" id='email' placeholder='Your email' onChange={e => onChangeText(e)} required/>
-        </div>
-        <div className="form-group">
           <label htmlFor="bio">Bio</label>
-          <textarea type="text" className="form-control" id='bio' placeholder='Tell us something about yourself' onChange={e => onChangeText(e)}/>
+          <textarea type="text" className="form-control" id='bio' placeholder='Tell us something about yourself' onChange={e => onChangeText(e)} style={{maxHeight: '8vh'}}/>
         </div>
         <div className="form-group">
           <label htmlFor="website">Website</label>
           <input type="text" className="form-control" id='website' placeholder='Your website' onChange={e => onChangeText(e)}/>
         </div>
         <div className="form-group">
-          <label htmlFor="twitter">Twitter</label>
+          <label htmlFor="twitter">Twitter handle</label>
           <input type="text" className="form-control" id='twitter' placeholder='Your twitter' onChange={e => onChangeText(e)}/>
           <small>No @ plz</small>
         </div>
@@ -88,6 +103,7 @@ export const AddContributor = () => {
         <div className="form-group">
           <label htmlFor="headshot">Headshot</label>
           <input type="file" className="form-control-file" id='headshot' onChange={e => onChangeFile(e)}/>
+          {/* {authenticated.loggedIn && !loading ? <img src={data.headshot} /> : null} */}
         </div>
         <button className='btn btn-primary'>Submit</button>
       </form>

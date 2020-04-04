@@ -1,8 +1,11 @@
-import React from 'react';
+import React, {useState} from 'react';
 import ReactDOM from 'react-dom';
 import {useSpring, animated} from 'react-spring';
+import useClippy from 'use-clippy';
 
-export const OurStory = ({show, setShow}) => {
+export const Share = ({share, setShare}) => {
+  const [clipboard, setClipboard] = useClippy();
+  const [alert, setAlert] = useState(false);
   const shown = {
     width: '100vw', 
     height: '100vh', 
@@ -20,17 +23,24 @@ export const OurStory = ({show, setShow}) => {
   };
   
   const spring = useSpring({
-    // margin: show ? 0 : -500,
     to: shown,
     from: hidden
   });
 
   const slide = useSpring({
-    marginTop: show ? 0 : -700
+    marginTop: share.display ? 0 : 600
   })
   
+  const onClick = () => {
+    setClipboard(share.url);
+    setAlert(true);
+    setTimeout(() => {
+        setAlert(false)
+    }, 3000);
+  }
+
   return (
-    show ? ReactDOM.createPortal(
+    share.display ? ReactDOM.createPortal(
       <animated.div
       className='modal-overlay'
       id='ourStory'
@@ -45,31 +55,24 @@ export const OurStory = ({show, setShow}) => {
         <div className='modal-content'>
           <div className='modal-header'>
             <h5 className='modal-title' id='exampleModalLabel'>
-              Our Story
+              Share!
             </h5>
             <button
               type='button'
               className='close'
               data-dismiss='modal'
               aria-label='Close'
-              onClick={e => setShow(!show)}
+              onClick={e => setShare({...share, display: false})}
             >
               <span aria-hidden='true'>&times;</span>
             </button>
           </div>
           <div className='modal-body p-0'>
-            <div className='embed-responsive embed-responsive-16by9'>
-              <iframe
-                title='OurStory'
-                className='embed-responsive-item'
-                width='560'
-                height='315'
-                src='https://www.youtube-nocookie.com/embed/ln1DGHJnJB0?html5=1'
-                frameBorder='0'
-                allow='accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture'
-                allowFullScreen
-              ></iframe>
-            </div>
+              {alert && <div className="alert alert-success">Copied to clipboard</div>}
+              <div className="d-flex justify-content-around">
+                <input type='text' className="form-control w-75" value={share.url} readOnly />
+                <button className="btn btn-primary" onClick={e => onClick()}>COPY</button>
+              </div>
           </div>
           <div className='modal-footer'>
             <a

@@ -13,6 +13,16 @@ const UserSchema = new Schema({
     createdAt: {
         type: Date,
         default: Date.now
+    },
+    roles: [
+        {
+            type: String,
+            required: true 
+        }
+    ],
+    contributor: {
+        type: Schema.Types.ObjectId,
+        ref: 'contributors'
     }
 });
 

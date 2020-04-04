@@ -1,11 +1,9 @@
-import React, { useContext } from 'react';
-import {GlobalContext} from '../../context/GlobalState';
+import React from 'react';
 
 export const Logo = () => {
 
-  const {searchData} = useContext(GlobalContext);
   return (
-    <div id='logo' className='row' style={searchData.result ? {display: 'none'} : {}}>
+    <div id='logo' className='row'>
       <div className='col-12 col-md-10 offset-md-1'>
         <div className='logo__container px-3 pt-4'>
           <a className='logo' href='/'>

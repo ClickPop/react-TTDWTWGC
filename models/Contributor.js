@@ -23,7 +23,11 @@ const ContributorSchema = new Schema({
     required: true
   },
   airtable_activities: [String],
-  airtable_id: String
+  airtable_id: String,
+  user: {
+    type: Schema.Types.ObjectId,
+    ref: 'users'
+  }
 });
 
 module.exports = mongoose.model('contributor', ContributorSchema);

@@ -3,10 +3,30 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
+import {GlobalState} from './context/GlobalState';
+import { ApolloProvider, ApolloClient, InMemoryCache } from '@apollo/client';
+import { createUploadLink } from 'apollo-upload-client';
+import {BrowserRouter} from 'react-router-dom';
+
+const link = createUploadLink({ 
+  uri: 'http://localhost:5000/graphql',
+  credentials: 'include',
+});
+
+export const client = new ApolloClient({
+  link,
+  cache: new InMemoryCache()
+});
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <ApolloProvider client={client}>
+      <GlobalState>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </GlobalState>
+    </ApolloProvider>
   </React.StrictMode>,
   document.getElementById('root')
 );

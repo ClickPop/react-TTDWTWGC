@@ -4,7 +4,9 @@ import {Result} from './Result';
 import gql from 'graphql-tag';
 import {useLazyQuery} from '@apollo/client';
 import store from 'store';
-
+import {useSpring, animated} from 'react-spring';
+import activity_types from '../../enums/activity_types';
+import audiences from '../../enums/audiences';
 
 const QUERY = gql`
   query activity($activity_type: ID, $audience: ID, $pastResults: [ID]) {
@@ -22,7 +24,23 @@ const QUERY = gql`
   }
 `;
 
-export const Search = () => {
+const ACTIVITY = gql`
+  query($id: ID) {
+    activity(id: $id) {
+      id
+      title
+      description
+      url
+      contributors {
+        id
+        name
+        headshot
+      }
+    }
+  }
+`
+
+export const Search = ({id}) => {
   const {searchData, setSearchData} = useContext(GlobalContext);
   let {activity_type, audience, result, pastResults} = searchData;
 
@@ -30,10 +48,9 @@ export const Search = () => {
     pastResults = store.get('pastResults');
   }
 
-  const [getActivity, {data, loading, error, called}] = useLazyQuery(QUERY, {
-    pollInterval: 0,
-    ssr: false,
-    fetchPolicy: 'network-only',
+  const query = id ? ACTIVITY : QUERY;
+
+  const [getActivity, {data, loading, error, called}] = useLazyQuery(query, {
     onCompleted: (data) => {
       let pastResults = searchData.pastResults;
       if (pastResults === undefined) {
@@ -48,49 +65,50 @@ export const Search = () => {
   
       setSearchData({...searchData, pastResults: pastResults});
       store.set('pastResults', searchData.pastResults);
-      setSearchData({...searchData, result: true})
+      setSearchData({...searchData, search: true, result: true})
+    },
+    onError: (err) => {
+      console.log(err);
     }
   });
 
-  const activity_types = [
-    {value: 'PLAY_A_GAME', text: 'Play a game'},
-    {value: 'LEARN_SOMETHING_NEW', text: 'Learn something new'},
-    {value: 'LEARN_A_PROFESSIONAL_SKILL', text: 'Learn a professional skill'},
-    {value: 'DO_SOMETHING_UNUSUAL', text: 'Something unusual'},
-    {value: 'MAKE_A_CRAFT', text: 'Make a craft'},
-    {value: 'GO_OUTSIDE', text: 'Go outside'},
-    {value: 'DO_SOMETHING_SIMPLE', text: 'Do something simple'},
-    {value: 'MAKE_ART', text: 'Make art'},
-    {value: 'SPRUCE_THINGS_UP', text: 'Spruce things up'}
-  ];
-  const audiences = [
-    {value: 'BY_MYSELF', text: 'By myself'},
-    {value: 'WITH_MY_KIDS', text: 'With my kids'},
-    {value: 'WITH_MY_PARTNER', text: 'With my partner'},
-    {value: 'WITH_MY_FRIENDS', text: 'With my friends'},
-  ];
+  if (id && !called && !searchData.search) {
+    console.log('test');
+    setSearchData({...searchData, pastResults});
+    getActivity({
+      variables: {
+        id: id
+      }
+    });
+  }
 
   const onChange = e => {
     const {value, name} = e.target
     setSearchData({...searchData, [name]: value});
   }
 
-  const onClick = (e, past, type, aud) => {
-    setSearchData({...searchData, search: true, pastResults: past});
+  const onClick = (e) => {
+    setSearchData({...searchData, pastResults});
     getActivity({
       variables: {
-        activity_type: type,
-        audience: aud,
-        pastResults: past
+        activity_type,
+        audience,
+        pastResults
       }
     });
   }
+
+  const spring = useSpring({
+    opacity: loading ? 0 : 1,
+    height: loading ? 0 : 'auto',
+    transform: loading ? 'scaleY(0)' : 'scaleY(1)',
+  })
 
   return (
     <Fragment>
     <div id='form' className='row'>
       <div className='col-12 col-md-10 offset-md-1'>
-        <div id='activity-search-form' className={loading || result ? 'form__container px-2 py-2 bg--lavender' : 'form__container px-2 py-2'}>
+        <div id='activity-search-form' className={result ? 'form__container px-2 py-2 bg--lavender' : 'form__container px-2 py-2'}>
           <div className='d-md-flex justify-content-center align-items-center'>
             <div className='mb-3 mb-md-0 pl-1' style={{ flexShrink: '0' }}>
               I want to:
@@ -106,9 +124,9 @@ export const Search = () => {
               <option value='' disabled hidden>
                 What do you want to do?
               </option>
-              {activity_types.map(({value, text}) => (
+              {activity_types.map(({value, label}) => (
                 <option key={value} value={value}>
-                  {text}
+                  {label}
                 </option>
               ))}
             </select>
@@ -123,9 +141,9 @@ export const Search = () => {
               <option value='' disabled hidden>
                 With whom?
               </option>
-              {audiences.map(({value, text}) => (
+              {audiences.map(({value, label}) => (
                 <option key={value} value={value}>
-                  {text}
+                  {label}
                 </option>
               ))}
             </select>
@@ -135,7 +153,7 @@ export const Search = () => {
               id='go'
               className='btn btn-warning btn-block-xs ml-sm-1'
               value={result ? 'New idea?' : 'Go!'}
-              onClick={e => onClick(e, pastResults, activity_type, audience)}
+              onClick={e => onClick(e)}
             />
           </div>
           {/* <div className="form-inline">
@@ -147,7 +165,9 @@ export const Search = () => {
         </div>
       </div>
     </div>
-    {!loading && called && result && <Result data={data} loading={loading} error={error} />}
+    <animated.div style={spring}>
+      {called && !loading && searchData.search && <Result data={data} loading={loading} error={error} />}
+    </animated.div>
     </Fragment>
   );
 };

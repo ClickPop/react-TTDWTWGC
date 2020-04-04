@@ -24,14 +24,13 @@ async function asyncForEach (array, callback) {
 
 const resolvers = {
   Query: {
-    async activities(con) {
+    async activities() {
       const activities = await Activity.find().populate('contributors');
       return activities;
     },
     async activity(parent, { id, activity_type, audience, pastResults }, context, info) {
-      console.log(context);
       if (id !== undefined) {
-        return await Activity.findById(id);
+        return await Activity.findById(id).populate('contributors');
       }
       let query = { approved: true };
       if (pastResults !== undefined) {
@@ -67,30 +66,34 @@ const resolvers = {
       return await Contributor.find().populate('activities');
     },
     async contributor(parent, args, context, info) {
-      return await (await Contributor.findById(args.id)).populate('activities');
+      console.log(args);
+      return await Contributor.findById(args.id).populate('activities');
     },
-    user(parent, args, context, info) {
-      return context.user.user;
+    currentUser(parent, args, context, info) {
+      return context.getUser();
     }
   },
   Mutation: {
     async createActivity(parent, { activity }, context, info) {
+      const user = context.getUser();
       const {
         title,
         description,
         url,
         activity_type,
         audience,
-        contributors
+        // contributors
       } = await activity;
       let contributorsList = [];
-      if (contributors !== null && contributors !== undefined && contributors.length > 0) {
-        await asyncForEach(contributors, async contributor => {
-          let tmp = await Contributor.findOne({name: contributor});
-          contributorsList.push(tmp);
-        })
+      // if (contributors !== null && contributors !== undefined && contributors.length > 0) {
+      //   await asyncForEach(contributors, async contributor => {
+      //     let tmp = await User.findById(contributor);
+      //     contributorsList.push(await Contributor.findById(tmp.id));
+      //   })
+      // }
+      if (user.contributor) {
+        contributors.push(user.contributor);
       }
-
       const newActivity = new Activity({
         title,
         description,
@@ -111,9 +114,10 @@ const resolvers = {
         other,
         bio,
         headshot,
-        email
+        email,
+        // user_id
       } = await contributor;
-
+      
       const newContributor = new Contributor({
         name,
         website,
@@ -121,101 +125,110 @@ const resolvers = {
         other,
         bio,
         email,
+        user: context.getUser(),
         approved: false
       });
 
-      const {createReadStream, filename, mimetype, encoding} = await headshot;
-      const cleanedFilename = filename.toLowerCase().replace(/[^a-z0-9.]/g, '-');
-      const readStream = createReadStream();
-      const url = await new Promise((resolve, reject) => {     
-        let path = `${newContributor.id}/${cleanedFilename}`;
-        let params = {
-          ACL: 'public-read',
-          Body: readStream,
-          Bucket: AWS_BUCKET,
-          Key: `images/${path}`,
-          ContentEncoding: encoding,
-          ContentType: mimetype
-        };
-        S3.upload(params, (err, data) => {
-          if (err) {
-            console.error(err);
-            reject(err);
-          } else {
-            console.log(data);
-            console.log(`URL: ${data.Location}`);
-            resolve(data.Location);
-          }
+      if (context.getUser()) {
+        const tmp = await User.findById(context.getUser()._id);
+        tmp.contributor = newContributor.id;
+        await tmp.save()
+      }
+
+      if (headshot) {
+        const {createReadStream, filename, mimetype, encoding} = await headshot;
+        const cleanedFilename = filename.toLowerCase().replace(/[^a-z0-9.]/g, '-');
+        const readStream = createReadStream();
+        const url = await new Promise((resolve, reject) => {     
+          let path = `${newContributor.id}/${cleanedFilename}`;
+          let params = {
+            ACL: 'public-read',
+            Body: readStream,
+            Bucket: AWS_BUCKET,
+            Key: `images/${path}`,
+            ContentEncoding: encoding,
+            ContentType: mimetype
+          };
+          S3.upload(params, (err, data) => {
+            if (err) {
+              console.error(err);
+              reject(err);
+            } else {
+              console.log(`URL: ${data.Location}`);
+              resolve(data.Location);
+            }
+          });
+          // fs.access(path.join(__dirname, '..', 'images', name, cleanedFilename), error => {
+          //   if (error) {
+          //     fs.mkdir(path.join(__dirname, '..', 'images', name), {recursive: true}, error => {
+          //       if (error) {
+          //         console.error(error);
+          //         reject();
+          //       } else {
+          //         dir = path.join(__dirname, '..', 'images', name);
+          //         console.log(`Created directiory at ${dir}`);
+          //         const writeStream = createWriteStream(`${dir}/${cleanedFilename}`);
+          //         readStream
+          //         .pipe(writeStream)
+          //         .on('error', error => {
+          //           console.error(error);
+          //           reject();
+          //         })
+          //         .on('finish', file => {
+          //           console.log('file written');
+          //           resolve();
+          //         });
+          //       }
+          //     })
+          //   } else {
+          //     dir = path.join(__dirname, '..', 'images', name);
+          //     console.log(`${dir} already exists`);
+          //     const writeStream = createWriteStream(`${dir}/${cleanedFilename}`);
+          //     readStream
+          //       .pipe(writeStream)
+          //       .on('error', error => {
+          //         console.error(error);
+          //         reject();
+          //       })
+          //       .on('finish', file => {
+          //         console.log('file written');
+          //         resolve()
+          //     })
+          //   }
+          // });
         });
-        // fs.access(path.join(__dirname, '..', 'images', name, cleanedFilename), error => {
-        //   if (error) {
-        //     fs.mkdir(path.join(__dirname, '..', 'images', name), {recursive: true}, error => {
-        //       if (error) {
-        //         console.error(error);
-        //         reject();
-        //       } else {
-        //         dir = path.join(__dirname, '..', 'images', name);
-        //         console.log(`Created directiory at ${dir}`);
-        //         const writeStream = createWriteStream(`${dir}/${cleanedFilename}`);
-        //         readStream
-        //         .pipe(writeStream)
-        //         .on('error', error => {
-        //           console.error(error);
-        //           reject();
-        //         })
-        //         .on('finish', file => {
-        //           console.log('file written');
-        //           resolve();
-        //         });
-        //       }
-        //     })
-        //   } else {
-        //     dir = path.join(__dirname, '..', 'images', name);
-        //     console.log(`${dir} already exists`);
-        //     const writeStream = createWriteStream(`${dir}/${cleanedFilename}`);
-        //     readStream
-        //       .pipe(writeStream)
-        //       .on('error', error => {
-        //         console.error(error);
-        //         reject();
-        //       })
-        //       .on('finish', file => {
-        //         console.log('file written');
-        //         resolve()
-        //     })
-        //   }
-        // });
-      });
+        newContributor.headshot = url;
+      }
 
       // const url = `./images/${newContributor.id}/${cleanedFilename}`
       // const writeStream = createWriteStream(url);
       // readStream.pipe(writeStream);
-      newContributor.headshot = url;
-      console.log(newContributor);
       return await newContributor.save();
     },
     async register(parent, {email, password}, context, info) {
-      let user = new User({
+      const exists = await User.findOne({email});
+      if (exists) {
+        throw new Error('User already exists');
+      }
+
+      const newUser = new User({
         email,
-        password: await bcrypt.hash(password, 10)
+        password: await bcrypt.hash(password, 10),
+        roles: ['USER'],
       });
-      return user.save();
+      await newUser.save();
+
+      await context.login(newUser);
+
+      return {user: newUser};
     },
-    async login(parent, {email, password}, {SECRET}, info) {
-      const user = await User.findOne({email});
-      if (!user) {
-        throw new Error('Login invalid');
-      }
-      const isValid = await bcrypt.compare(password, user.password);
-      if (!isValid) {
-        throw new Error('Login invalid');
-      }
-
-      const token = await jwt.sign({
-        user: {id: user.id, email: user.email}
-      }, SECRET, {expiresIn: '1y'});
-
-      return token;
+    async login(parent, {email, password}, context, info) {
+      const {user} = await context.authenticate('graphql-local', {email, password});
+      await context.login(user);
+      return {user}
+    },
+    logout(parent, args, context, info) {
+      return context.logout();
     }
   }
 };

@@ -1,6 +1,13 @@
-import React from 'react';
+import React, { useContext } from 'react';
+import { GlobalContext } from '../../context/GlobalState';
 
-export const Result = ({data, loading, error, search}) => {
+export const Result = ({data, loading, error}) => {
+  const {share, setShare} = useContext(GlobalContext);
+  const url = window.location.href + 'activities/' + data.activity.id;
+  const onClick = e => {
+    setShare({display: true, url});
+  }
+  
   if (error) return (
     <div className="col-12 col-md-10 offset-md-1">
       <div className="result__container">
@@ -28,11 +35,13 @@ export const Result = ({data, loading, error, search}) => {
         <div className="col-12 col-md-10 offset-md-1">
           <div className="result__container py-3 py-sm-4 my-sm-4">
             <h1>{data.activity.title}</h1>
-            <p>{data.activity.description}</p>
-            {data.activity.url !== null &&
-            <small className="font-weight-bold">
-              <a href={data.activity.url} id="learn-more" target="_blank" rel="noopener noreferrer">Learn more...</a>
-            </small>}
+            <p>
+              {data.activity.description}{' '}
+              {data.activity.url !== null &&
+              <small className="font-weight-bold">
+                <a href={data.activity.url} id="learn-more" target="_blank" rel="noopener noreferrer">Learn more...</a>
+              </small>}
+            </p>
             {data.activity.contributors.length > 0 
               ? <div className="mt-4 d-sm-flex align-items-center">
                   <div>This idea came from:</div>
@@ -57,6 +66,7 @@ export const Result = ({data, loading, error, search}) => {
                     </ul>
                   </div> 
             }
+            <button id="share" className='btn btn-primary m-auto' onClick={e => onClick(e)}>Share!</button>
             <div className="notice notice--warning pl-2 pr-3 py-2 mt-5 bg--slate">
               <div>
                 <span role="img" aria-label="Warning sign">⚠️</span>
